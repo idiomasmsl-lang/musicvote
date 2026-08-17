@@ -6,7 +6,7 @@
   <title>Admin Dashboard - Music Voting</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap" rel="stylesheet">
   
-  <!-- External Libraries: Chart.js, QRCode.js, Canvas-Confetti -->
+  <!-- External Libraries -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
@@ -26,11 +26,38 @@
       flex-direction: column;
       align-items: center;
       justify-content: space-between;
-      padding: 30px;
+      padding: 20px 30px;
       overflow-x: hidden;
     }
 
-    /* Password Modal */
+    /* Top Navigation Header */
+    header {
+      width: 100%;
+      max-width: 1200px;
+      display: flex;
+      justify-content: flex-end;
+      padding: 10px 0;
+    }
+    .user-link {
+      color: #00f0ff;
+      text-decoration: none;
+      font-weight: 700;
+      border: 2px solid #00f0ff;
+      padding: 8px 18px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      letter-spacing: 1px;
+      transition: all 0.3s;
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+      text-transform: uppercase;
+    }
+    .user-link:hover {
+      background: #00f0ff;
+      color: #06040d;
+      box-shadow: 0 0 20px #00f0ff;
+    }
+
+    /* Password Screen */
     #passwordModal {
       position: fixed;
       top: 0;
@@ -104,7 +131,7 @@
 
     /* Admin Dashboard Layout */
     #adminContent {
-      display: none; /* Revealed after login */
+      display: none;
       flex-direction: column;
       align-items: center;
       justify-content: space-between;
@@ -116,7 +143,7 @@
     /* Header / Question */
     .title-box {
       text-align: center;
-      margin-top: 10px;
+      margin-top: 5px;
       transition: all 0.3s;
     }
     .title-box h1 {
@@ -129,7 +156,7 @@
       -webkit-text-fill-color: transparent;
     }
 
-    /* Center Container */
+    /* Center Display */
     .center-container {
       display: flex;
       flex-direction: column;
@@ -238,7 +265,7 @@
       z-index: 100;
     }
     .btn-ctrl {
-      background: rgba(13, 10, 26, 0.8);
+      background: rgba(13, 10, 26, 0.85);
       border: 2px solid #00f0ff;
       color: #00f0ff;
       padding: 14px 22px;
@@ -302,6 +329,11 @@
   <!-- Main Content -->
   <div id="adminContent">
     
+    <!-- Top Navigation Header -->
+    <header>
+      <a href="index.html" class="user-link">User Interface</a>
+    </header>
+
     <!-- Title / Question -->
     <div class="title-box" id="questionBox">
       <h1>WHICH MUSIC STYLE IS THE BEST?</h1>
@@ -349,13 +381,8 @@
     // =========================================================================
     // CONFIGURATION - PASTE YOUR LINKS HERE:
     // =========================================================================
-    // 1. URL of your User Page (where QR code points to)
     const USER_PAGE_URL = "https://idiomasmsl-lang.github.io/musicvote/"; 
-    
-    // 2. URL of your Google Apps Script Web App
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbysIL6x476v-ydbOitMFz3lixSsgslf6xm_kfWM8eOcee5WOXdWzNRYkJ5wk9L762ai/exec"; 
-    
-    // 3. Admin Password
     const ADMIN_PASSWORD = "password";
     // =========================================================================
 
