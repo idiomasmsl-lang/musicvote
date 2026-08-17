@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Which Music Style is the Best?</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
   <style>
     * {
       box-sizing: border-box;
@@ -13,95 +13,155 @@
     }
     body {
       font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #0f0c20 0%, #1a103c 100%);
+      background: radial-gradient(circle at center, #1b1035 0%, #080512 100%);
       color: #ffffff;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       padding: 20px;
+      overflow-x: hidden;
     }
     header {
       width: 100%;
       max-width: 600px;
       display: flex;
-      justify-content: flex-end;
+      justify-content: space-between;
+      align-items: center;
       padding: 10px 0;
     }
+    /* Animated Equalizer */
+    .equalizer {
+      display: flex;
+      align-items: flex-end;
+      gap: 4px;
+      height: 24px;
+    }
+    .equalizer-bar {
+      width: 5px;
+      background: linear-gradient(to top, #ff007a, #00f0ff);
+      border-radius: 3px;
+      animation: equalizer 1s ease-in-out infinite alternate;
+    }
+    .equalizer-bar:nth-child(1) { height: 40%; animation-delay: 0.1s; }
+    .equalizer-bar:nth-child(2) { height: 90%; animation-delay: 0.3s; }
+    .equalizer-bar:nth-child(3) { height: 60%; animation-delay: 0.2s; }
+    .equalizer-bar:nth-child(4) { height: 100%; animation-delay: 0.4s; }
+    .equalizer-bar:nth-child(5) { height: 50%; animation-delay: 0.15s; }
+
+    @keyframes equalizer {
+      0% { height: 20%; }
+      100% { height: 100%; }
+    }
+
     .admin-link {
-      color: #ff007a;
+      color: #00f0ff;
       text-decoration: none;
       font-weight: 700;
-      border: 2px solid #ff007a;
-      padding: 6px 14px;
+      border: 2px solid #00f0ff;
+      padding: 6px 16px;
       border-radius: 20px;
+      font-size: 0.85rem;
+      letter-spacing: 1px;
       transition: all 0.3s;
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
     }
     .admin-link:hover {
-      background: #ff007a;
-      color: #fff;
-      box-shadow: 0 0 15px #ff007a;
+      background: #00f0ff;
+      color: #080512;
+      box-shadow: 0 0 20px #00f0ff;
     }
+
     .title-container {
       text-align: center;
-      margin: 20px 0 30px;
+      margin: 25px 0 35px;
     }
+    .music-note {
+      font-size: 2.5rem;
+      display: inline-block;
+      margin-bottom: 5px;
+      animation: bounce 2s infinite ease-in-out;
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
     h1 {
-      font-size: 2rem;
+      font-size: 2.2rem;
       font-weight: 900;
       letter-spacing: 2px;
       text-transform: uppercase;
       background: linear-gradient(90deg, #ff007a, #7b2cbf, #00f0ff);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
     .subtitle {
       color: #a0a0c0;
       font-size: 0.95rem;
+      font-weight: 400;
     }
+
     .grid-container {
       width: 100%;
       max-width: 500px;
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 15px;
+      gap: 16px;
     }
     .btn-genre {
-      background: #251b4e;
-      border: 2px solid #3d2b7a;
+      background: rgba(255, 255, 255, 0.04);
+      border: 2px solid #ff007a;
       border-radius: 16px;
       color: #ffffff;
-      padding: 25px 15px;
+      padding: 24px 15px;
       font-size: 1.2rem;
       font-weight: 700;
       cursor: pointer;
-      box-shadow: 0 8px 0 #130d2b;
-      transition: all 0.1s ease;
+      box-shadow: 0 0 15px rgba(255, 0, 122, 0.2);
+      transition: all 0.2s ease;
       text-transform: uppercase;
-      letter-spacing: 1px;
+      letter-spacing: 1.5px;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-genre::before {
+      content: '🎵';
+      position: absolute;
+      right: 10px;
+      bottom: 5px;
+      font-size: 1rem;
+      opacity: 0.3;
+    }
+    .btn-genre:hover {
+      background: #ff007a;
+      box-shadow: 0 0 25px #ff007a;
+      transform: translateY(-3px);
     }
     .btn-genre:active {
-      transform: translateY(6px);
-      box-shadow: 0 2px 0 #130d2b;
+      transform: translateY(2px);
     }
     .btn-genre:disabled {
-      opacity: 0.5;
+      opacity: 0.4;
       cursor: not-allowed;
       transform: none !important;
       box-shadow: none !important;
+      border-color: #555;
     }
+
     .status-card {
       margin-top: 30px;
       padding: 20px;
       background: rgba(255, 255, 255, 0.05);
-      border-radius: 12px;
+      border-radius: 16px;
       border: 1px solid rgba(255, 255, 255, 0.1);
       text-align: center;
       display: none;
       width: 100%;
       max-width: 500px;
-      animation: fadeIn 0.5s ease;
+      animation: fadeIn 0.4s ease;
+      backdrop-filter: blur(10px);
     }
     .status-card.active {
       display: block;
@@ -109,7 +169,9 @@
     .status-card.success {
       border-color: #00f0ff;
       color: #00f0ff;
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
     }
+
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
@@ -119,12 +181,20 @@
 <body>
 
   <header>
-    <a href="admin.html" class="admin-link">Administrador</a>
+    <div class="equalizer">
+      <div class="equalizer-bar"></div>
+      <div class="equalizer-bar"></div>
+      <div class="equalizer-bar"></div>
+      <div class="equalizer-bar"></div>
+      <div class="equalizer-bar"></div>
+    </div>
+    <a href="admin.html" class="admin-link">ADMIN PANEL</a>
   </header>
 
   <div class="title-container">
+    <div class="music-note">🎧</div>
     <h1>WHICH MUSIC STYLE IS THE BEST?</h1>
-    <p class="subtitle">Escolha seu gênero favorito para votar!</p>
+    <p class="subtitle">Vote for your favorite genre!</p>
   </div>
 
   <div class="grid-container" id="buttonsGrid">
@@ -140,7 +210,7 @@
 
   <script>
     // =========================================================
-    // COLE AQUI A SUA URL DO GOOGLE APPS SCRIPT
+    // PASTE YOUR GOOGLE APPS SCRIPT URL HERE
     // =========================================================
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbysIL6x476v-ydbOitMFz3lixSsgslf6xm_kfWM8eOcee5WOXdWzNRYkJ5wk9L762ai/exec";
 
@@ -150,7 +220,7 @@
     window.addEventListener("DOMContentLoaded", () => {
       const userVote = localStorage.getItem("voted_genre");
       if (userVote) {
-        disableVoting(`Você já votou no estilo: <strong>${userVote}</strong>. Obrigado por participar!`);
+        disableVoting(`You have already voted for: <strong>${userVote}</strong>. Thank you for participating! 🎶`);
       }
     });
 
@@ -165,7 +235,7 @@
 
       buttons.forEach(btn => btn.disabled = true);
       statusCard.className = "status-card active";
-      statusCard.innerText = "Registrando seu voto...";
+      statusCard.innerText = "Submitting your vote...";
 
       try {
         const response = await fetch(`${APPS_SCRIPT_URL}?action=vote&genre=${encodeURIComponent(genre)}`);
@@ -173,13 +243,13 @@
 
         if (data.status === "success") {
           localStorage.setItem("voted_genre", genre);
-          disableVoting(`Voto em <strong>${genre}</strong> registrado com sucesso! 🎉`);
+          disableVoting(`Vote for <strong>${genre}</strong> submitted successfully! 🎉`);
         } else {
-          throw new Error("Erro no registro");
+          throw new Error("Submission error");
         }
       } catch (err) {
         statusCard.className = "status-card active";
-        statusCard.innerText = "Ocorreu um erro ao enviar seu voto. Tente novamente.";
+        statusCard.innerText = "An error occurred while submitting your vote. Please try again.";
         buttons.forEach(btn => btn.disabled = false);
       }
     }
