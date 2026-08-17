@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Painel do Administrador - Votação</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap" rel="stylesheet">
+  
+  <!-- CDNs das Bibliotecas: Chart.js, QRCode.js, Canvas-Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #0d0a1a;
+      color: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 30px;
+      overflow-x: hidden;
+    }
+
+    /* Título / Pergunta */
+    .title-box {
+      text-align: center;
+      margin-top: 10px;
+      transition: all 0.3s;
+    }
+    .title-box h1 {
+      font-size: 2.8rem;
+      font-weight: 900;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      background: linear-gradient(90deg, #ff007a, #00f0ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Área Central */
+    .center-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      width: 100%;
+      margin: 20px 0;
+      position: relative;
+    }
+
+    /* Container do QR Code */
+    #qrContainer {
+      background: #ffffff;
+      padding: 25px;
+      border-radius: 24px;
+      box-shadow: 0 0 50px rgba(0, 240, 255, 0.3);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    #qrcode img {
+      width: 320px !important;
+      height: 320px !important;
+    }
+    .qr-label {
+      color: #0d0a1a;
+      font-weight: 700;
+      margin-top: 15px;
+      font-size: 1.1rem;
+    }
+
+    /* Container do Timer */
+    #timerContainer {
+      display: none;
+      position: relative;
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid #ff007a;
+      border-radius: 30px;
+      padding: 40px 80px;
+      text-align: center;
+      box-shadow: 0 0 40px rgba(255, 0, 122, 0.4);
+      animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .btn-close-timer {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      background: transparent;
+      border: none;
+      color: #ff007a;
+      font-size: 1.5rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .timer-display {
+      font-size: 8rem;
+      font-weight: 900;
+      color: #00f0ff;
+      text-shadow: 0 0 30px #00f0ff;
+      line-height: 1;
+      margin-top: 10px;
+    }
+
+    /* Container do Resultado */
+    #resultContainer {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 600px;
+      animation: fadeIn 0.5s ease;
+    }
+    .winner-box {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .winner-subtitle {
+      font-size: 1.8rem;
+      color: #a0a0c0;
+      font-weight: 700;
+    }
+    .winner-title {
+      font-size: 3.5rem;
+      font-weight: 900;
+      color: #ff007a;
+      text-shadow: 0 0 25px #ff007a;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+    .chart-wrapper {
+      width: 100%;
+      max-width: 420px;
+      height: 420px;
+    }
+
+    /* Botões Inferiores Direitos */
+    .controls-bottom-right {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      display: flex;
+      gap: 15px;
+      z-index: 100;
+    }
+    .btn-ctrl {
+      background: #251b4e;
+      border: 2px solid #00f0ff;
+      color: #00f0ff;
+      padding: 15px 25px;
+      font-size: 1rem;
+      font-weight: 700;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0, 240, 255, 0.2);
+      transition: all 0.2s;
+      text-transform: uppercase;
+    }
+    .btn-ctrl:hover {
+      background: #00f0ff;
+      color: #0d0a1a;
+      box-shadow: 0 0 25px #00f0ff;
+    }
+    .btn-ctrl.reveal {
+      border-color: #ff007a;
+      color: #ff007a;
+      box-shadow: 0 4px 15px rgba(255, 0, 122, 0.2);
+    }
+    .btn-ctrl.reveal:hover {
+      background: #ff007a;
+      color: #ffffff;
+      box-shadow: 0 0 25px #ff007a;
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Pergunta no topo -->
+  <div class="title-box" id="questionBox">
+    <h1>WHICH MUSIC STYLE IS THE BEST?</h1>
+  </div>
+
+  <!-- Área Central -->
+  <div class="center-container">
+    
+    <!-- QR Code para escanear de longe -->
+    <div id="qrContainer">
+      <div id="qrcode"></div>
+      <div class="qr-label">ESCANEIE PARA VOTAR</div>
+    </div>
+
+    <!-- Timer Animado (10s) -->
+    <div id="timerContainer">
+      <button class="btn-close-timer" onclick="closeTimer()">✕</button>
+      <div style="font-size: 1.2rem; color: #a0a0c0; font-weight: 700;">A VOTAÇÃO ENCERRA EM</div>
+      <div class="timer-display" id="timerValue">10</div>
+    </div>
+
+    <!-- Gráfico de Resultados -->
+    <div id="resultContainer">
+      <div class="winner-box">
+        <div class="winner-subtitle">The Winner is...</div>
+        <div class="winner-title" id="winnerName">---</div>
+      </div>
+      <div class="chart-wrapper">
+        <canvas id="votesChart"></canvas>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Botões no Canto Inferior Direito -->
+  <div class="controls-bottom-right">
+    <button class="btn-ctrl" onclick="startTimer()">Start Timer</button>
+    <button class="btn-ctrl reveal" onclick="revealResults()">Reveal Result</button>
+  </div>
+
+  <script>
+    // =========================================================================
+    // CONFIGURAÇÕES - COLE SEUS LINKS AQUI:
+    // =========================================================================
+    // 1. URL da página do usuário (onde o QR Code vai apontar)
+    const USER_PAGE_URL = "USER COLAR AQUI"; 
+    
+    // 2. URL do seu Google Apps Script
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbysIL6x476v-ydbOitMFz3lixSsgslf6xm_kfWM8eOcee5WOXdWzNRYkJ5wk9L762ai/exec"; 
+    // =========================================================================
+
+    // Inicializa o QR Code
+    new QRCode(document.getElementById("qrcode"), {
+      text: USER_PAGE_URL,
+      width: 320,
+      height: 320,
+      colorDark : "#0d0a1a",
+      colorLight : "#ffffff",
+      correctLevel : QRCode.CorrectLevel.H
+    });
+
+    // Elementos da DOM
+    const questionBox = document.getElementById("questionBox");
+    const qrContainer = document.getElementById("qrContainer");
+    const timerContainer = document.getElementById("timerContainer");
+    const resultContainer = document.getElementById("resultContainer");
+    const timerValue = document.getElementById("timerValue");
+    const winnerName = document.getElementById("winnerName");
+
+    let timerInterval = null;
+    let confettiInterval = null;
+    let chartInstance = null;
+
+    // Função: Iniciar Timer de 10s
+    function startTimer() {
+      // Esconde QR Code e Pergunta
+      qrContainer.style.display = "none";
+      questionBox.style.display = "none";
+      resultContainer.style.display = "none";
+      
+      stopConfetti();
+
+      // Mostra o Timer
+      timerContainer.style.display = "block";
+      let timeLeft = 10;
+      timerValue.innerText = timeLeft;
+
+      if (timerInterval) clearInterval(timerInterval);
+
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        timerValue.innerText = timeLeft;
+
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          timerValue.innerText = "0";
+        }
+      }, 1000);
+    }
+
+    // Função: Fechar Timer
+    function closeTimer() {
+      if (timerInterval) clearInterval(timerInterval);
+      timerContainer.style.display = "none";
+      questionBox.style.display = "block";
+      qrContainer.style.display = "flex";
+    }
+
+    // Função: Revelar Resultados
+    async function revealResults() {
+      // Oculta Pergunta, QR Code e Timer
+      questionBox.style.display = "none";
+      qrContainer.style.display = "none";
+      if (timerInterval) clearInterval(timerInterval);
+      timerContainer.style.display = "none";
+
+      // Exibe Container do Resultado
+      resultContainer.style.display = "flex";
+
+      // Busca dados atualizados da planilha
+      try {
+        const response = await fetch(`${APPS_SCRIPT_URL}?action=getResults`);
+        const result = await response.json();
+
+        if (result.status === "success") {
+          const data = result.data;
+          
+          let maxVotes = -1;
+          let winner = "NENHUM";
+          
+          const labels = [];
+          const voteCounts = [];
+
+          for (const [genre, votes] of Object.entries(data)) {
+            labels.push(genre);
+            voteCounts.push(votes);
+            if (votes > maxVotes) {
+              maxVotes = votes;
+              winner = genre;
+            }
+          }
+
+          // Atualiza Vencedor em Caixa Alta
+          winnerName.innerText = winner.toUpperCase();
+
+          // Renderiza / Atualiza Gráfico de Pizza
+          renderChart(labels, voteCounts);
+
+          // Efeito de Confetes em Loop
+          startConfettiLoop();
+        }
+      } catch (err) {
+        alert("Erro ao carregar dados do resultado. Verifique a URL do Google Apps Script.");
+      }
+    }
+
+    // Função para renderizar o Gráfico em Pizza (Chart.js)
+    function renderChart(labels, data) {
+      const ctx = document.getElementById('votesChart').getContext('2d');
+      
+      if (chartInstance) {
+        chartInstance.destroy();
+      }
+
+      chartInstance = new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: labels,
+          datasets: [{
+            data: data,
+            backgroundColor: [
+              '#ff007a',
+              '#00f0ff',
+              '#7b2cbf',
+              '#ffbe0b',
+              '#fb5607',
+              '#3a86ff'
+            ],
+            borderWidth: 2,
+            borderColor: '#0d0a1a'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                color: '#ffffff',
+                font: { family: 'Poppins', size: 14, weight: 'bold' }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Função para Confetes em Loop
+    function startConfettiLoop() {
+      stopConfetti();
+      confettiInterval = setInterval(() => {
+        confetti({
+          particleCount: 60,
+          spread: 80,
+          origin: { y: 0.6 }
+        });
+      }, 700);
+    }
+
+    function stopConfetti() {
+      if (confettiInterval) clearInterval(confettiInterval);
+    }
+  </script>
+</body>
+</html>

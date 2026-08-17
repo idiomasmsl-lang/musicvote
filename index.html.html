@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Which Music Style is the Best?</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #0f0c20 0%, #1a103c 100%);
+      color: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    header {
+      width: 100%;
+      max-width: 600px;
+      display: flex;
+      justify-content: flex-end;
+      padding: 10px 0;
+    }
+    .admin-link {
+      color: #ff007a;
+      text-decoration: none;
+      font-weight: 700;
+      border: 2px solid #ff007a;
+      padding: 6px 14px;
+      border-radius: 20px;
+      transition: all 0.3s;
+    }
+    .admin-link:hover {
+      background: #ff007a;
+      color: #fff;
+      box-shadow: 0 0 15px #ff007a;
+    }
+    .title-container {
+      text-align: center;
+      margin: 20px 0 30px;
+    }
+    h1 {
+      font-size: 2rem;
+      font-weight: 900;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      background: linear-gradient(90deg, #ff007a, #7b2cbf, #00f0ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+    }
+    .subtitle {
+      color: #a0a0c0;
+      font-size: 0.95rem;
+    }
+    .grid-container {
+      width: 100%;
+      max-width: 500px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+    }
+    .btn-genre {
+      background: #251b4e;
+      border: 2px solid #3d2b7a;
+      border-radius: 16px;
+      color: #ffffff;
+      padding: 25px 15px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 8px 0 #130d2b;
+      transition: all 0.1s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .btn-genre:active {
+      transform: translateY(6px);
+      box-shadow: 0 2px 0 #130d2b;
+    }
+    .btn-genre:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+    .status-card {
+      margin-top: 30px;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      text-align: center;
+      display: none;
+      width: 100%;
+      max-width: 500px;
+      animation: fadeIn 0.5s ease;
+    }
+    .status-card.active {
+      display: block;
+    }
+    .status-card.success {
+      border-color: #00f0ff;
+      color: #00f0ff;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="admin.html" class="admin-link">Administrador</a>
+  </header>
+
+  <div class="title-container">
+    <h1>WHICH MUSIC STYLE IS THE BEST?</h1>
+    <p class="subtitle">Escolha seu gênero favorito para votar!</p>
+  </div>
+
+  <div class="grid-container" id="buttonsGrid">
+    <button class="btn-genre" onclick="submitVote('METAL')">METAL</button>
+    <button class="btn-genre" onclick="submitVote('POP')">POP</button>
+    <button class="btn-genre" onclick="submitVote('JAZZ')">JAZZ</button>
+    <button class="btn-genre" onclick="submitVote('HIP-HOP')">HIP-HOP</button>
+    <button class="btn-genre" onclick="submitVote('REGGAE')">REGGAE</button>
+    <button class="btn-genre" onclick="submitVote('GOSPEL')">GOSPEL</button>
+  </div>
+
+  <div id="statusCard" class="status-card"></div>
+
+  <script>
+    // =========================================================
+    // COLE AQUI A SUA URL DO GOOGLE APPS SCRIPT
+    // =========================================================
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbysIL6x476v-ydbOitMFz3lixSsgslf6xm_kfWM8eOcee5WOXdWzNRYkJ5wk9L762ai/exec";
+
+    const statusCard = document.getElementById("statusCard");
+    const buttons = document.querySelectorAll(".btn-genre");
+
+    window.addEventListener("DOMContentLoaded", () => {
+      const userVote = localStorage.getItem("voted_genre");
+      if (userVote) {
+        disableVoting(`Você já votou no estilo: <strong>${userVote}</strong>. Obrigado por participar!`);
+      }
+    });
+
+    function disableVoting(message) {
+      buttons.forEach(btn => btn.disabled = true);
+      statusCard.className = "status-card active success";
+      statusCard.innerHTML = message;
+    }
+
+    async function submitVote(genre) {
+      if (localStorage.getItem("voted_genre")) return;
+
+      buttons.forEach(btn => btn.disabled = true);
+      statusCard.className = "status-card active";
+      statusCard.innerText = "Registrando seu voto...";
+
+      try {
+        const response = await fetch(`${APPS_SCRIPT_URL}?action=vote&genre=${encodeURIComponent(genre)}`);
+        const data = await response.json();
+
+        if (data.status === "success") {
+          localStorage.setItem("voted_genre", genre);
+          disableVoting(`Voto em <strong>${genre}</strong> registrado com sucesso! 🎉`);
+        } else {
+          throw new Error("Erro no registro");
+        }
+      } catch (err) {
+        statusCard.className = "status-card active";
+        statusCard.innerText = "Ocorreu um erro ao enviar seu voto. Tente novamente.";
+        buttons.forEach(btn => btn.disabled = false);
+      }
+    }
+  </script>
+</body>
+</html>
