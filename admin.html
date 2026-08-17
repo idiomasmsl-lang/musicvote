@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard - Music Voting</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap" rel="stylesheet">
+  
+  <!-- External Libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: radial-gradient(circle at center, #180e30 0%, #06040d 100%);
+      color: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 30px;
+      overflow-x: hidden;
+    }
+
+    /* Top Navigation Header */
+    header {
+      width: 100%;
+      max-width: 1200px;
+      display: flex;
+      justify-content: flex-end;
+      padding: 10px 0;
+    }
+    .user-link {
+      color: #00f0ff;
+      text-decoration: none;
+      font-weight: 700;
+      border: 2px solid #00f0ff;
+      padding: 8px 18px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      letter-spacing: 1px;
+      transition: all 0.3s;
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+      text-transform: uppercase;
+    }
+    .user-link:hover {
+      background: #00f0ff;
+      color: #06040d;
+      box-shadow: 0 0 20px #00f0ff;
+    }
+
+    /* Password Screen */
+    #passwordModal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(6, 4, 13, 0.95);
+      backdrop-filter: blur(15px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .login-box {
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid #ff007a;
+      padding: 40px;
+      border-radius: 24px;
+      text-align: center;
+      box-shadow: 0 0 40px rgba(255, 0, 122, 0.3);
+      max-width: 400px;
+      width: 90%;
+    }
+    .login-box h2 {
+      font-size: 1.8rem;
+      margin-bottom: 20px;
+      color: #00f0ff;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .login-box input {
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(0, 0, 0, 0.5);
+      color: #ffffff;
+      font-size: 1.1rem;
+      text-align: center;
+      outline: none;
+      margin-bottom: 15px;
+    }
+    .login-box input:focus {
+      border-color: #00f0ff;
+      box-shadow: 0 0 10px #00f0ff;
+    }
+    .login-box button {
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      border: none;
+      background: #ff007a;
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 1rem;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 0 0 15px #ff007a;
+      transition: all 0.2s;
+    }
+    .login-box button:hover {
+      background: #ff2a93;
+      box-shadow: 0 0 25px #ff007a;
+    }
+    .error-msg {
+      color: #ff4d4d;
+      font-size: 0.9rem;
+      margin-top: 10px;
+      display: none;
+    }
+
+    /* Admin Dashboard Layout */
+    #adminContent {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      height: 100%;
+      flex: 1;
+    }
+
+    /* Header / Question */
+    .title-box {
+      text-align: center;
+      margin-top: 5px;
+      transition: all 0.3s;
+    }
+    .title-box h1 {
+      font-size: 2.8rem;
+      font-weight: 900;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      background: linear-gradient(90deg, #ff007a, #00f0ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Center Display */
+    .center-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      width: 100%;
+      margin: 20px 0;
+      position: relative;
+    }
+
+    /* QR Code Container */
+    #qrContainer {
+      background: #ffffff;
+      padding: 25px;
+      border-radius: 24px;
+      box-shadow: 0 0 60px rgba(0, 240, 255, 0.4);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      animation: fadeIn 0.4s ease;
+    }
+    #qrcode img {
+      width: 320px !important;
+      height: 320px !important;
+    }
+    .qr-label {
+      color: #06040d;
+      font-weight: 800;
+      margin-top: 15px;
+      font-size: 1.2rem;
+      letter-spacing: 1px;
+    }
+
+    /* Timer Container */
+    #timerContainer {
+      display: none;
+      position: relative;
+      background: rgba(255, 255, 255, 0.03);
+      border: 2px solid #ff007a;
+      border-radius: 30px;
+      padding: 40px 80px;
+      text-align: center;
+      box-shadow: 0 0 50px rgba(255, 0, 122, 0.4);
+      animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .btn-close-timer {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      background: transparent;
+      border: none;
+      color: #ff007a;
+      font-size: 1.5rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .timer-display {
+      font-size: 8rem;
+      font-weight: 900;
+      color: #00f0ff;
+      text-shadow: 0 0 35px #00f0ff;
+      line-height: 1;
+      margin-top: 10px;
+    }
+
+    /* Result Container */
+    #resultContainer {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 600px;
+      animation: fadeIn 0.5s ease;
+    }
+    .winner-box {
+      text-align: center;
+      margin-bottom: 15px;
+    }
+    .winner-subtitle {
+      font-size: 1.8rem;
+      color: #a0a0c0;
+      font-weight: 700;
+    }
+    .winner-title {
+      font-size: 3.5rem;
+      font-weight: 900;
+      color: #ff007a;
+      text-shadow: 0 0 30px #ff007a;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+    .chart-wrapper {
+      width: 100%;
+      max-width: 400px;
+      height: 400px;
+    }
+
+    /* Bottom Control Bar */
+    .controls-bottom-right {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      display: flex;
+      gap: 12px;
+      z-index: 100;
+    }
+    .btn-ctrl {
+      background: rgba(13, 10, 26, 0.85);
+      border: 2px solid #00f0ff;
+      color: #00f0ff;
+      padding: 14px 22px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0, 240, 255, 0.2);
+      transition: all 0.2s;
+      text-transform: uppercase;
+      backdrop-filter: blur(10px);
+    }
+    .btn-ctrl:hover {
+      background: #00f0ff;
+      color: #06040d;
+      box-shadow: 0 0 25px #00f0ff;
+    }
+    .btn-ctrl.reveal {
+      border-color: #ff007a;
+      color: #ff007a;
+      box-shadow: 0 4px 15px rgba(255, 0, 122, 0.2);
+    }
+    .btn-ctrl.reveal:hover {
+      background: #ff007a;
+      color: #ffffff;
+      box-shadow: 0 0 25px #ff007a;
+    }
+    .btn-ctrl.reset {
+      border-color: #7b2cbf;
+      color: #7b2cbf;
+      box-shadow: 0 4px 15px rgba(123, 44, 191, 0.2);
+    }
+    .btn-ctrl.reset:hover {
+      background: #7b2cbf;
+      color: #ffffff;
+      box-shadow: 0 0 25px #7b2cbf;
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Password Screen -->
+  <div id="passwordModal">
+    <div class="login-box">
+      <h2>🔒 Admin Access</h2>
+      <input type="password" id="passwordInput" placeholder="Enter password" onkeydown="if(event.key==='Enter') checkPassword()" />
+      <button onclick="checkPassword()">Unlock Panel</button>
+      <div id="errorMsg" class="error-msg">Incorrect password. Please try again.</div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div id="adminContent">
+    
+    <!-- Top Navigation Header -->
+    <header>
+      <a href="index.html" class="user-link">User Interface</a>
+    </header>
+
+    <!-- Title / Question -->
+    <div class="title-box" id="questionBox">
+      <h1>WHICH MUSIC STYLE IS THE BEST?</h1>
+    </div>
+
+    <!-- Center Display -->
+    <div class="center-container">
+      
+      <!-- QR Code -->
+      <div id="qrContainer">
+        <div id="qrcode"></div>
+        <div class="qr-label">SCAN TO VOTE 🎧</div>
+      </div>
+
+      <!-- Animated Timer -->
+      <div id="timerContainer">
+        <button class="btn-close-timer" onclick="showQRCode()">✕</button>
+        <div style="font-size: 1.2rem; color: #a0a0c0; font-weight: 700;">VOTING CLOSES IN</div>
+        <div class="timer-display" id="timerValue">10</div>
+      </div>
+
+      <!-- Winner & Chart Results -->
+      <div id="resultContainer">
+        <div class="winner-box">
+          <div class="winner-subtitle">The Winner is...</div>
+          <div class="winner-title" id="winnerName">---</div>
+        </div>
+        <div class="chart-wrapper">
+          <canvas id="votesChart"></canvas>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Bottom Action Controls -->
+    <div class="controls-bottom-right">
+      <button class="btn-ctrl reset" onclick="showQRCode()">Show QR Code</button>
+      <button class="btn-ctrl" onclick="startTimer()">Start Timer</button>
+      <button class="btn-ctrl reveal" onclick="revealResults()">Reveal Result</button>
+    </div>
+
+  </div>
+
+  <script>
+    // =========================================================================
+    // CONFIGURATION - PASTE YOUR LINKS HERE:
+    // =========================================================================
+    const USER_PAGE_URL = "https://idiomasmsl-lang.github.io/musicvote/"; 
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbysIL6x476v-ydbOitMFz3lixSsgslf6xm_kfWM8eOcee5WOXdWzNRYkJ5wk9L762ai/exec"; 
+    const ADMIN_PASSWORD = "password";
+    // =========================================================================
+
+    // Password Check
+    function checkPassword() {
+      const input = document.getElementById("passwordInput").value;
+      const errorMsg = document.getElementById("errorMsg");
+
+      if (input === ADMIN_PASSWORD) {
+        document.getElementById("passwordModal").style.display = "none";
+        document.getElementById("adminContent").style.display = "flex";
+        initQRCode();
+      } else {
+        errorMsg.style.display = "block";
+      }
+    }
+
+    // Initialize QR Code
+    let qrInitialized = false;
+    function initQRCode() {
+      if (qrInitialized) return;
+      new QRCode(document.getElementById("qrcode"), {
+        text: USER_PAGE_URL,
+        width: 320,
+        height: 320,
+        colorDark : "#06040d",
+        colorLight : "#ffffff",
+        correctLevel : QRCode.CorrectLevel.H
+      });
+      qrInitialized = true;
+    }
+
+    // DOM Elements
+    const questionBox = document.getElementById("questionBox");
+    const qrContainer = document.getElementById("qrContainer");
+    const timerContainer = document.getElementById("timerContainer");
+    const resultContainer = document.getElementById("resultContainer");
+    const timerValue = document.getElementById("timerValue");
+    const winnerName = document.getElementById("winnerName");
+
+    let timerInterval = null;
+    let confettiInterval = null;
+    let chartInstance = null;
+
+    // Reset View / Show QR Code
+    function showQRCode() {
+      stopConfetti();
+      if (timerInterval) clearInterval(timerInterval);
+
+      timerContainer.style.display = "none";
+      resultContainer.style.display = "none";
+      
+      questionBox.style.display = "block";
+      qrContainer.style.display = "flex";
+    }
+
+    // Start 10-Second Timer
+    function startTimer() {
+      stopConfetti();
+      qrContainer.style.display = "none";
+      questionBox.style.display = "none";
+      resultContainer.style.display = "none";
+      
+      timerContainer.style.display = "block";
+      let timeLeft = 10;
+      timerValue.innerText = timeLeft;
+
+      if (timerInterval) clearInterval(timerInterval);
+
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        timerValue.innerText = timeLeft;
+
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          timerValue.innerText = "0";
+        }
+      }, 1000);
+    }
+
+    // Reveal Voting Results
+    async function revealResults() {
+      questionBox.style.display = "none";
+      qrContainer.style.display = "none";
+      if (timerInterval) clearInterval(timerInterval);
+      timerContainer.style.display = "none";
+
+      resultContainer.style.display = "flex";
+
+      try {
+        const response = await fetch(`${APPS_SCRIPT_URL}?action=getResults`);
+        const result = await response.json();
+
+        if (result.status === "success") {
+          const data = result.data;
+          
+          let maxVotes = -1;
+          let winner = "NONE";
+          
+          const labels = [];
+          const voteCounts = [];
+
+          for (const [genre, votes] of Object.entries(data)) {
+            labels.push(genre);
+            voteCounts.push(votes);
+            if (votes > maxVotes) {
+              maxVotes = votes;
+              winner = genre;
+            }
+          }
+
+          winnerName.innerText = winner.toUpperCase();
+          renderChart(labels, voteCounts);
+          startConfettiLoop();
+        }
+      } catch (err) {
+        alert("Failed to load results. Please verify your Google Apps Script URL.");
+      }
+    }
+
+    // Render Pie Chart
+    function renderChart(labels, data) {
+      const ctx = document.getElementById('votesChart').getContext('2d');
+      
+      if (chartInstance) {
+        chartInstance.destroy();
+      }
+
+      chartInstance = new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: labels,
+          datasets: [{
+            data: data,
+            backgroundColor: [
+              '#ff007a',
+              '#00f0ff',
+              '#7b2cbf',
+              '#ffbe0b',
+              '#fb5607',
+              '#3a86ff'
+            ],
+            borderWidth: 2,
+            borderColor: '#06040d'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                color: '#ffffff',
+                font: { family: 'Poppins', size: 14, weight: 'bold' }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Confetti Loop
+    function startConfettiLoop() {
+      stopConfetti();
+      confettiInterval = setInterval(() => {
+        confetti({
+          particleCount: 60,
+          spread: 80,
+          origin: { y: 0.6 }
+        });
+      }, 700);
+    }
+
+    function stopConfetti() {
+      if (confettiInterval) clearInterval(confettiInterval);
+    }
+  </script>
+</body>
+</html>
